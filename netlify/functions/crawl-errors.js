@@ -28,7 +28,7 @@ exports.handler = async (event, context) => {
     });
 
     const authClient = await auth.getClient();
-    const siteUrl = process.env.SITE_URL || 'https://www.creareapp.it';
+    const siteUrl = process.env.SITE_URL || 'https://creareapp.it';
     
     // Chiamata diretta all'API Search Console
     const axios = require('axios');
