@@ -1,104 +1,17 @@
-const { BetaAnalyticsDataClient } = require('@google-analytics/data');
-
+// Simplified version without @google-analytics/data dependency for now
 exports.handler = async (event, context) => {
   try {
-    if (!process.env.GOOGLE_ANALYTICS_PROPERTY_ID) {
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ 
-          error: 'Google Analytics Property ID non configurato'
-        })
-      };
-    }
-
-    // Configurazione Google Analytics Data API
-    const analyticsDataClient = new BetaAnalyticsDataClient({
-      // In produzione, userai Service Account JSON
-      credentials: process.env.GOOGLE_APPLICATION_CREDENTIALS ? 
-        JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS) : 
-        undefined
-    });
-
-    const propertyId = process.env.GOOGLE_ANALYTICS_PROPERTY_ID;
+    console.log('📊 Traffic function called');
+    console.log('🔑 Analytics Property ID:', process.env.GOOGLE_ANALYTICS_PROPERTY_ID);
     
-    // Richiesta dati traffico organico
-    const [response] = await analyticsDataClient.runReport({
-      property: `properties/${propertyId}`,
-      dateRanges: [
-        {
-          startDate: '30daysAgo',
-          endDate: 'today',
-        },
-      ],
-      dimensions: [
-        { name: 'sessionDefaultChannelGrouping' },
-        { name: 'pagePath' }
-      ],
-      metrics: [
-        { name: 'sessions' },
-        { name: 'users' },
-        { name: 'bounceRate' },
-        { name: 'averageSessionDuration' }
-      ],
-      dimensionFilter: {
-        filter: {
-          fieldName: 'sessionDefaultChannelGrouping',
-          stringFilter: {
-            value: 'Organic Search'
-          }
-        }
-      }
-    });
-
-    let organicSessions = 0;
-    let organicUsers = 0;
-    let totalBounceRate = 0;
-    let totalAvgDuration = 0;
-    const topPages = {};
-    
-    if (response.rows) {
-      response.rows.forEach(row => {
-        const sessions = parseInt(row.metricValues[0].value) || 0;
-        const users = parseInt(row.metricValues[1].value) || 0;
-        const bounceRate = parseFloat(row.metricValues[2].value) || 0;
-        const avgDuration = parseFloat(row.metricValues[3].value) || 0;
-        const pagePath = row.dimensionValues[1].value;
-        
-        organicSessions += sessions;
-        organicUsers += users;
-        totalBounceRate += bounceRate * sessions;
-        totalAvgDuration += avgDuration * sessions;
-        
-        if (topPages[pagePath]) {
-          topPages[pagePath] += sessions;
-        } else {
-          topPages[pagePath] = sessions;
-        }
-      });
-    }
-    
-    // Calcola medie ponderate
-    const avgBounceRate = organicSessions > 0 ? (totalBounceRate / organicSessions).toFixed(1) : '0.0';
-    const avgSessionDuration = organicSessions > 0 ? 
-      Math.floor(totalAvgDuration / organicSessions) : 0;
-    
-    // Formatta durata in mm:ss
-    const minutes = Math.floor(avgSessionDuration / 60);
-    const seconds = avgSessionDuration % 60;
-    const formattedDuration = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-    
-    // Top 3 pagine per sessioni
-    const sortedPages = Object.entries(topPages)
-      .sort(([,a], [,b]) => b - a)
-      .slice(0, 3)
-      .map(([page, sessions]) => ({ page, sessions }));
-
+    // For now, return placeholder data until we properly configure Service Account
     const trafficData = {
-      organicSessions,
-      organicUsers,
-      bounceRate: avgBounceRate,
-      avgSessionDuration: formattedDuration,
-      topPages: sortedPages,
+      error: 'Analytics API requires Service Account configuration',
+      debug: {
+        hasPropertyId: !!process.env.GOOGLE_ANALYTICS_PROPERTY_ID,
+        propertyId: process.env.GOOGLE_ANALYTICS_PROPERTY_ID,
+        note: 'Service Account JSON needed for Analytics Data API'
+      },
       timestamp: new Date().toISOString()
     };
 
@@ -112,7 +25,7 @@ exports.handler = async (event, context) => {
     };
 
   } catch (error) {
-    console.error('Errore API Traffic:', error);
+    console.error('❌ Error in traffic function:', error);
     
     return {
       statusCode: 500,
@@ -121,8 +34,11 @@ exports.handler = async (event, context) => {
         'Access-Control-Allow-Origin': '*'
       },
       body: JSON.stringify({ 
-        error: 'Errore nel caricamento dei dati traffico reali',
-        details: error.message
+        error: 'Errore nel caricamento dei dati traffico',
+        details: error.message,
+        debug: {
+          hasPropertyId: !!process.env.GOOGLE_ANALYTICS_PROPERTY_ID
+        }
       })
     };
   }

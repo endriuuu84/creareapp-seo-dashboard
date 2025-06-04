@@ -2,11 +2,21 @@ const axios = require('axios');
 
 exports.handler = async (event, context) => {
   try {
+    console.log('🔧 Performance function called');
+    console.log('🔑 API Key exists:', !!process.env.GOOGLE_PAGESPEED_API_KEY);
+    console.log('🌐 Site URL:', process.env.SITE_URL);
+    
     if (!process.env.GOOGLE_PAGESPEED_API_KEY) {
+      console.error('❌ Missing GOOGLE_PAGESPEED_API_KEY');
       return {
         statusCode: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        },
         body: JSON.stringify({ 
-          error: 'Google PageSpeed API key non configurata'
+          error: 'Google PageSpeed API key non configurata',
+          debug: 'GOOGLE_PAGESPEED_API_KEY not found in environment'
         })
       };
     }
@@ -14,25 +24,35 @@ exports.handler = async (event, context) => {
     const siteUrl = process.env.SITE_URL || 'https://www.creareapp.it';
     const apiKey = process.env.GOOGLE_PAGESPEED_API_KEY;
 
+    console.log('📊 Testing with URL:', siteUrl);
+
     // Analisi mobile
+    console.log('📱 Calling mobile PageSpeed API...');
     const mobileResponse = await axios.get('https://www.googleapis.com/pagespeedonline/v5/runPagespeed', {
       params: {
         url: siteUrl,
         key: apiKey,
         strategy: 'mobile',
         category: ['performance', 'seo', 'accessibility']
-      }
+      },
+      timeout: 30000
     });
+    
+    console.log('✅ Mobile response received');
 
     // Analisi desktop
+    console.log('💻 Calling desktop PageSpeed API...');
     const desktopResponse = await axios.get('https://www.googleapis.com/pagespeedonline/v5/runPagespeed', {
       params: {
         url: siteUrl,
         key: apiKey,
         strategy: 'desktop', 
         category: ['performance', 'seo', 'accessibility']
-      }
+      },
+      timeout: 30000
     });
+    
+    console.log('✅ Desktop response received');
 
     // Estrai metriche mobile
     const mobileData = mobileResponse.data;
@@ -74,7 +94,12 @@ exports.handler = async (event, context) => {
     };
 
   } catch (error) {
-    console.error('Errore API Performance:', error);
+    console.error('❌ Error in performance function:', error);
+    console.error('Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status
+    });
     
     return {
       statusCode: 500,
@@ -84,7 +109,13 @@ exports.handler = async (event, context) => {
       },
       body: JSON.stringify({ 
         error: 'Errore nel caricamento dei dati performance reali',
-        details: error.message
+        details: error.message,
+        debug: {
+          status: error.response?.status,
+          data: error.response?.data,
+          hasApiKey: !!process.env.GOOGLE_PAGESPEED_API_KEY,
+          siteUrl: process.env.SITE_URL
+        }
       })
     };
   }
