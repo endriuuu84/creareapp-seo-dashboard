@@ -14,77 +14,82 @@ function App() {
     try {
       setIsLoading(true);
       
-      // Simula caricamento dati reali
-      // In produzione queste chiamate andrebbero a API backend o direttamente alle API Google
-      const mockRealData = {
-        keywords: {
-          "sviluppo app mobile": {
-            position: 8.5,
-            clicks: 24,
-            impressions: 450,
-            ctr: 5.3,
-            timestamp: new Date().toISOString()
-          },
-          "creare app android": {
-            position: 12.1,
-            clicks: 18,
-            impressions: 320,
-            ctr: 5.6,
-            timestamp: new Date().toISOString()
-          },
-          "sviluppo applicazioni mobile": {
-            position: 15.3,
-            clicks: 12,
-            impressions: 280,
-            ctr: 4.3,
-            timestamp: new Date().toISOString()
-          }
-        },
-        performance: {
-          mobile: {
-            performance: 78,
-            seo: 92,
-            accessibility: 85,
-            metrics: {
-              FCP: "1.8s",
-              LCP: "2.4s", 
-              CLS: "0.12",
-              TTI: "3.2s",
-              TBT: "180ms"
-            }
-          },
-          desktop: {
-            performance: 89,
-            seo: 94,
-            accessibility: 88
-          },
-          timestamp: new Date().toISOString()
-        },
-        traffic: null, // Richiede Google Analytics API
-        crawlErrors: null, // Richiede Search Console API estesa
-        competitors: null, // Richiede SERPApi
+      // Carica SOLO dati reali dalle API - nessun dato finto
+      const realApiData = await Promise.allSettled([
+        fetchKeywordRankings(),
+        fetchPerformanceData(), 
+        fetchTrafficData(),
+        fetchCrawlErrors(),
+        fetchCompetitorData()
+      ]);
+      
+      const [keywordsResult, performanceResult, trafficResult, crawlResult, competitorResult] = realApiData;
+      
+      const seoData = {
+        keywords: keywordsResult.status === 'fulfilled' ? keywordsResult.value : null,
+        performance: performanceResult.status === 'fulfilled' ? performanceResult.value : null,
+        traffic: trafficResult.status === 'fulfilled' ? trafficResult.value : null,
+        crawlErrors: crawlResult.status === 'fulfilled' ? crawlResult.value : null,
+        competitors: competitorResult.status === 'fulfilled' ? competitorResult.value : null,
         timestamp: new Date().toISOString()
       };
       
-      setSeoData(mockRealData);
+      setSeoData(seoData);
       setIsConnected(true);
       setIsLoading(false);
       
-      // Genera alerts per dati significativi
-      const newAlerts = generateAlerts(mockRealData);
-      setAlerts(prev => [...prev, ...newAlerts].slice(-10));
+      // Genera alerts solo per dati reali ricevuti
+      if (seoData.keywords || seoData.performance) {
+        const newAlerts = generateAlerts(seoData);
+        setAlerts(prev => [...prev, ...newAlerts].slice(-10));
+      }
       
     } catch (error) {
-      console.error('❌ Errore caricamento dati SEO:', error);
+      console.error('❌ Errore caricamento dati SEO reali:', error);
       setIsConnected(false);
       setIsLoading(false);
       
       setAlerts(prev => [...prev, {
         type: 'error',
-        message: 'Errore caricamento dati SEO',
+        message: 'Errore nel caricamento dei dati reali dalle API',
         timestamp: new Date().toISOString()
       }]);
     }
+  };
+
+  // Fetch real keyword rankings from Search Console
+  const fetchKeywordRankings = async () => {
+    const response = await fetch('/api/keywords');
+    if (!response.ok) throw new Error('Keywords API non disponibile');
+    return response.json();
+  };
+
+  // Fetch real performance data from PageSpeed Insights
+  const fetchPerformanceData = async () => {
+    const response = await fetch('/api/performance');
+    if (!response.ok) throw new Error('Performance API non disponibile');
+    return response.json();
+  };
+
+  // Fetch real traffic data from Google Analytics
+  const fetchTrafficData = async () => {
+    const response = await fetch('/api/traffic');
+    if (!response.ok) throw new Error('Analytics API non disponibile');
+    return response.json();
+  };
+
+  // Fetch real crawl errors from Search Console
+  const fetchCrawlErrors = async () => {
+    const response = await fetch('/api/crawl-errors');
+    if (!response.ok) throw new Error('Search Console API non disponibile');
+    return response.json();
+  };
+
+  // Fetch real competitor data from SERPApi
+  const fetchCompetitorData = async () => {
+    const response = await fetch('/api/competitors');
+    if (!response.ok) throw new Error('Competitor API non disponibile');
+    return response.json();
   };
 
   useEffect(() => {
