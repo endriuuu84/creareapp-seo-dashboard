@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Dashboard from './components/Dashboard';
 import Header from './components/Header';
 import LoadingScreen from './components/LoadingScreen';
@@ -10,7 +10,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [alerts, setAlerts] = useState([]);
 
-  const loadSeoData = async () => {
+  const loadSeoData = useCallback(async () => {
     try {
       setIsLoading(true);
       
@@ -55,7 +55,7 @@ function App() {
         timestamp: new Date().toISOString()
       }]);
     }
-  };
+  }, []);
 
   // Fetch real keyword rankings from Search Console
   const fetchKeywordRankings = async () => {
@@ -100,7 +100,7 @@ function App() {
     const refreshInterval = setInterval(loadSeoData, 30 * 60 * 1000);
     
     return () => clearInterval(refreshInterval);
-  }, []);
+  }, [loadSeoData]);
 
   const generateAlerts = (data) => {
     const alerts = [];
