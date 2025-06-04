@@ -7,13 +7,8 @@
   NPM_VERSION = "9"
 
 [functions]
-  external_node_modules = ["google-auth-library", "axios"]
+  external_node_modules = ["google-auth-library", "axios", "@google-analytics/data"]
   node_bundler = "esbuild"
-  
-[[functions]]
-  function = "performance"
-  [functions.schedule]
-    timeout = "60s"
 
 [[redirects]]
   from = "/api/*"
