@@ -10,16 +10,6 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [alerts, setAlerts] = useState([]);
 
-  useEffect(() => {
-    // Carica dati SEO reali dalle API
-    loadSeoData();
-    
-    // Auto-refresh ogni 30 minuti
-    const refreshInterval = setInterval(loadSeoData, 30 * 60 * 1000);
-    
-    return () => clearInterval(refreshInterval);
-  }, []);
-
   const loadSeoData = async () => {
     try {
       setIsLoading(true);
@@ -96,6 +86,16 @@ function App() {
       }]);
     }
   };
+
+  useEffect(() => {
+    // Carica dati SEO reali dalle API
+    loadSeoData();
+    
+    // Auto-refresh ogni 30 minuti
+    const refreshInterval = setInterval(loadSeoData, 30 * 60 * 1000);
+    
+    return () => clearInterval(refreshInterval);
+  }, []);
 
   const generateAlerts = (data) => {
     const alerts = [];
