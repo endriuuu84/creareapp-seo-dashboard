@@ -35,7 +35,7 @@ exports.handler = async (event, context) => {
         strategy: 'mobile',
         category: ['performance', 'seo', 'accessibility']
       },
-      timeout: 30000
+      timeout: 60000
     });
     
     console.log('✅ Mobile response received');
@@ -49,7 +49,7 @@ exports.handler = async (event, context) => {
         strategy: 'desktop', 
         category: ['performance', 'seo', 'accessibility']
       },
-      timeout: 30000
+      timeout: 60000
     });
     
     console.log('✅ Desktop response received');
