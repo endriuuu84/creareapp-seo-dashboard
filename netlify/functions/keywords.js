@@ -36,8 +36,9 @@ exports.handler = async (event, context) => {
     
     const accessToken = await authClient.getAccessToken();
     
-    const endDate = new Date().toISOString().split('T')[0];
-    const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    // Use older dates due to Search Console latency
+    const endDate = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]; // 3 days ago
+    const startDate = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]; // 90 days ago
 
     console.log('📅 Date range:', startDate, 'to', endDate);
     console.log('🌐 Using site URL:', siteUrl);
@@ -48,8 +49,7 @@ exports.handler = async (event, context) => {
         startDate,
         endDate,
         dimensions: ['query'],
-        rowLimit: 100,
-        dataState: 'final'
+        rowLimit: 1000
       },
       {
         headers: {
