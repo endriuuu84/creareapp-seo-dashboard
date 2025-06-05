@@ -3,10 +3,10 @@ const { GoogleAuth } = require('google-auth-library');
 exports.handler = async (event, context) => {
   try {
     console.log('🔍 Keywords function called');
-    console.log('🔐 Has Service Account:', !!process.env.GOOGLE_APPLICATION_CREDENTIALS);
+    console.log('🔐 Has Service Account:', !!process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
     console.log('🌐 Site URL:', process.env.SITE_URL);
     
-    if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    if (!process.env.GOOGLE_SERVICE_ACCOUNT_KEY) {
       return {
         statusCode: 500,
         headers: {
@@ -20,7 +20,7 @@ exports.handler = async (event, context) => {
     }
 
     // Parse service account credentials
-    const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS);
+    const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
     
     // Configurazione Google Auth con Service Account
     const auth = new GoogleAuth({

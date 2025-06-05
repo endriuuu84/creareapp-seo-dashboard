@@ -2,7 +2,7 @@ exports.handler = async (event, context) => {
   try {
     console.log('📊 Traffic function called');
     console.log('🔑 Analytics Property ID:', process.env.GOOGLE_ANALYTICS_PROPERTY_ID);
-    console.log('🔐 Has Service Account:', !!process.env.GOOGLE_APPLICATION_CREDENTIALS);
+    console.log('🔐 Has Service Account:', !!process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
     
     // Test basic functionality first
     if (!process.env.GOOGLE_ANALYTICS_PROPERTY_ID) {
@@ -21,8 +21,8 @@ exports.handler = async (event, context) => {
 
     console.log('🔧 Attempting to parse Service Account...');
     
-    if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-      console.log('❌ Missing GOOGLE_APPLICATION_CREDENTIALS');
+    if (!process.env.GOOGLE_SERVICE_ACCOUNT_KEY) {
+      console.log('❌ Missing GOOGLE_SERVICE_ACCOUNT_KEY');
       return {
         statusCode: 500,
         headers: {
@@ -38,7 +38,7 @@ exports.handler = async (event, context) => {
     // Test JSON parsing
     let credentials;
     try {
-      credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS);
+      credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
       console.log('✅ Service Account JSON parsed successfully');
       console.log('📧 Client email:', credentials.client_email);
     } catch (parseError) {
