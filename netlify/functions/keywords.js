@@ -48,7 +48,6 @@ exports.handler = async (event, context) => {
       {
         startDate,
         endDate,
-        dimensions: ['query'],
         rowLimit: 1000
       },
       {
