@@ -21,7 +21,7 @@ exports.handler = async (event, context) => {
       };
     }
 
-    const siteUrl = process.env.SITE_URL || 'https://www.creareapp.it';
+    const siteUrl = 'https://www.creareapp.it';
     const apiKey = process.env.GOOGLE_PAGESPEED_API_KEY;
 
     console.log('📊 Testing with URL:', siteUrl);
