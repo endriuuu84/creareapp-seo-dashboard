@@ -40,6 +40,7 @@ exports.handler = async (event, context) => {
     const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
     console.log('📅 Date range:', startDate, 'to', endDate);
+    console.log('🌐 Using site URL:', siteUrl);
 
     const searchConsoleResponse = await axios.post(
       `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/searchAnalytics/query`,
@@ -60,6 +61,7 @@ exports.handler = async (event, context) => {
     );
 
     console.log('✅ Search Console API response received');
+    console.log('📊 Response data:', JSON.stringify(searchConsoleResponse.data, null, 2));
 
     // Formatta dati per il frontend
     const keywords = {};
