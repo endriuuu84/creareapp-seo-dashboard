@@ -29,7 +29,7 @@ exports.handler = async (event, context) => {
     });
 
     const authClient = await auth.getClient();
-    const siteUrl = 'https://www.creareapp.it';
+    const siteUrl = 'sc-domain:creareapp.it';
     
     // Chiamata diretta all'API Search Console
     const axios = require('axios');
